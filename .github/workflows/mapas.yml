@@ -1,0 +1,35 @@
+# Arma el mapa sin internet de cada provincia y lo publica en la versión «mapas» (una vez por mes o a mano).
+name: Mapas
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *'
+permissions:
+  contents: write
+jobs:
+  mapas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recortar cada provincia
+        run: |
+          curl -sL https://github.com/protomaps/go-pmtiles/releases/download/v1.31.2/go-pmtiles_1.31.2_Linux_x86_64.tar.gz | tar xz pmtiles
+          CLAVE=$(curl -s https://build-metadata.protomaps.dev/builds.json | python3 -c "import sys,json;print(json.load(sys.stdin)[-1]['key'])")
+          echo "Mapa base: $CLAVE"
+          mkdir -p salida
+          python3 -c "
+          import json
+          for p in json.load(open('provincias.json')): print(p['id'], ','.join(str(v) for v in p['caja']))" | while read -r ID CAJA; do
+            ./pmtiles extract "https://build.protomaps.com/$CLAVE" "salida/$ID.pmtiles" --bbox="$CAJA" --maxzoom=14
+          done
+          python3 -c "
+          import json, os, datetime
+          print(json.dumps({'fecha': datetime.date.today().isoformat(), 'base': '$CLAVE',
+            'mapas': {f[:-8]: os.path.getsize('salida/' + f) for f in os.listdir('salida') if f.endswith('.pmtiles')}}))" > salida/mapas.json
+          cat salida/mapas.json
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view mapas >/dev/null 2>&1 || gh release create mapas --title "Mapas sin internet" --notes "Mapas de cada provincia para BondisAR (© OpenStreetMap, ODbL)." --latest
+          gh release upload mapas salida/* --clobber
