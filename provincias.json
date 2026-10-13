@@ -10,6 +10,16 @@
   ]
  },
  {
+  "id": "lapampa",
+  "nombre": "La Pampa",
+  "caja": [
+   -68.35,
+   -39.35,
+   -63.35,
+   -34.95
+  ]
+ },
+ {
   "id": "larioja",
   "nombre": "La Rioja",
   "caja": [
