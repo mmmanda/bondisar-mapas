@@ -1,5 +1,15 @@
 [
  {
+  "id": "bsas",
+  "nombre": "Buenos Aires",
+  "caja": [
+   -59.55,
+   -35.65,
+   -57.75,
+   -34.05
+  ]
+ },
+ {
   "id": "tucuman",
   "nombre": "Tucumán",
   "caja": [
