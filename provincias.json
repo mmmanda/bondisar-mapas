@@ -40,6 +40,16 @@
   ]
  },
  {
+  "id": "mendoza",
+  "nombre": "Mendoza",
+  "caja": [
+   -69.2,
+   -33.45,
+   -68.35,
+   -32.6
+  ]
+ },
+ {
   "id": "salta",
   "nombre": "Salta",
   "caja": [
